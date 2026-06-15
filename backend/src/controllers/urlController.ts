@@ -1,43 +1,28 @@
-import type { Request, Response, NextFunction } from 'express';
+import type { Request, Response } from 'express';
 import { urlService } from '../services/urlService.js';
 import { shortenSchema, shortCodeParamSchema } from '../middleware/validation.js';
+import { asyncHandler } from '../middleware/asyncHandler.js';
 
-export async function shortenUrl(req: Request, res: Response, next: NextFunction): Promise<void> {
-  try {
-    const body = shortenSchema.parse(req.body);
-    const result = await urlService.shorten(body);
-    res.status(201).json({ success: true, data: result });
-  } catch (err) {
-    next(err);
-  }
-}
+export const shortenUrl = asyncHandler(async (req: Request, res: Response) => {
+  const body = shortenSchema.parse(req.body);
+  const result = await urlService.shorten(body);
+  res.status(201).json({ success: true, data: result });
+});
 
-export async function getUrlMetadata(req: Request, res: Response, next: NextFunction): Promise<void> {
-  try {
-    const { shortCode } = shortCodeParamSchema.parse(req.params);
-    const result = await urlService.getMetadata(shortCode);
-    res.json({ success: true, data: result });
-  } catch (err) {
-    next(err);
-  }
-}
+export const getUrlMetadata = asyncHandler(async (req: Request, res: Response) => {
+  const { shortCode } = shortCodeParamSchema.parse(req.params);
+  const result = await urlService.getMetadata(shortCode);
+  res.json({ success: true, data: result });
+});
 
-export async function getAnalytics(req: Request, res: Response, next: NextFunction): Promise<void> {
-  try {
-    const { shortCode } = shortCodeParamSchema.parse(req.params);
-    const result = await urlService.getAnalytics(shortCode);
-    res.json({ success: true, data: result });
-  } catch (err) {
-    next(err);
-  }
-}
+export const getAnalytics = asyncHandler(async (req: Request, res: Response) => {
+  const { shortCode } = shortCodeParamSchema.parse(req.params);
+  const result = await urlService.getAnalytics(shortCode);
+  res.json({ success: true, data: result });
+});
 
-export async function deactivateUrl(req: Request, res: Response, next: NextFunction): Promise<void> {
-  try {
-    const { shortCode } = shortCodeParamSchema.parse(req.params);
-    const result = await urlService.deactivate(shortCode);
-    res.json({ success: true, data: result });
-  } catch (err) {
-    next(err);
-  }
-}
+export const deactivateUrl = asyncHandler(async (req: Request, res: Response) => {
+  const { shortCode } = shortCodeParamSchema.parse(req.params);
+  const result = await urlService.deactivate(shortCode);
+  res.json({ success: true, data: result });
+});

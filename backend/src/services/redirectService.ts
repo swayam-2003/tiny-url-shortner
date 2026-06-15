@@ -5,16 +5,20 @@ import { enqueueClick } from '../workers/analyticsWorker.js';
 import { validateShortCode } from '../utils/urlValidator.js';
 import { hashIp } from '../utils/hashIp.js';
 import { AppError } from '../types/index.js';
+import type { RedirectResult } from '../types/redirect.js';
 import { logger } from '../config/logger.js';
 
 export const redirectService = {
-  async resolve(shortCode: string): Promise<string> {
+  async resolve(shortCode: string): Promise<RedirectResult> {
+    const start = performance.now();
     const code = validateShortCode(shortCode);
 
-    const cached = await cacheRepository.get(code);
-    if (cached) return cached;
+    const { value: cached, status: cacheStatus } = await cacheRepository.get(code);
+    if (cached) {
+      return { longUrl: cached, cacheStatus, latencyMs: performance.now() - start };
+    }
 
-    logger.debug({ shortCode: code }, 'Cache miss');
+    logger.debug({ shortCode: code, cacheStatus }, 'Cache miss — querying database');
 
     const record = await urlRepository.findByShortCode(code);
     if (!record) throw new AppError(404, 'NOT_FOUND', 'Short link not found');
@@ -24,7 +28,8 @@ export const redirectService = {
     }
 
     await cacheRepository.set(code, record.long_url);
-    return record.long_url;
+    const finalStatus = cacheStatus === 'BYPASS' ? 'BYPASS' : 'MISS';
+    return { longUrl: record.long_url, cacheStatus: finalStatus, latencyMs: performance.now() - start };
   },
 
   trackClick(shortCode: string, req: Request): void {
