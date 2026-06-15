@@ -11,6 +11,8 @@
     "build": "vite build",
     "build:backend": "npm run build --prefix backend",
     "migrate": "npm run migrate --prefix backend",
+    "benchmark": "npm run benchmark --prefix backend",
+    "benchmark:redis-down": "npm run benchmark --prefix backend -- --redis-down",
     "lint": "eslint .",
     "preview": "vite preview"
   },
