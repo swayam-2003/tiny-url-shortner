@@ -9,6 +9,7 @@
     "start": "node dist/index.js",
     "migrate": "tsx src/scripts/migrate.ts",
     "benchmark": "tsx src/scripts/benchmark-redis.ts",
+    "benchmark:full": "tsx src/scripts/benchmark-full.ts",
     "lint": "tsc --noEmit"
   },
   "dependencies": {

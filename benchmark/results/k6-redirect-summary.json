@@ -1,0 +1,14 @@
+{
+  "test": "redirect_load",
+  "base_url": "http://host.docker.internal:3001",
+  "virtual_users": 2,
+  "duration": "30s",
+  "total_requests": 146,
+  "requests_per_second": 4.823488607072213,
+  "latency_avg_ms": 17.57141687671232,
+  "latency_p95_ms": 49.298004750000004,
+  "latency_p99_ms": 0,
+  "error_rate": 0,
+  "cache_hits": 144,
+  "cache_misses": 0
+}

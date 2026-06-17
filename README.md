@@ -439,30 +439,59 @@ Access via `http://localhost` — Nginx routes to 2 API replicas + React fronten
 
 ```
 tiny-url-shortner/
-├── backend/src/
-│   ├── config/           # env, db, redis, logger
-│   ├── controllers/      # HTTP handlers
-│   ├── services/         # business logic
-│   ├── repositories/     # data access (PG + Redis)
-│   ├── routes/           # API routes
-│   ├── middleware/       # security, rate-limit, errors, requestId
-│   ├── workers/          # async analytics queue
-│   ├── scripts/          # migrate, benchmark
-│   └── utils/            # base62, validators
-├── nginx/nginx.conf      # load balancer + rate limits
-├── redis/redis.conf      # allkeys-lru policy
-├── src/                  # React frontend
-├── postman/              # API collection
-└── docker-compose.yml    # Redis, PG, API×2, Nginx
+├── README.md                 # Main docs — architecture, API, setup
+├── RUNBOOK.md                # Step-by-step run tutorial (all modes)
+├── BENCHMARKS.md               # Load test results (k6 1000 VUs, latency, LB)
+├── EXPLAINATION.md           # System design + interview Q&A
+├── docker-compose.yml        # Redis, Postgres, API×2, Nginx, frontend (profiles)
+├── package.json              # Root scripts (dev:all, benchmark:*)
+│
+├── backend/
+│   ├── package.json
+│   └── src/
+│       ├── config/           # env, db, redis, logger
+│       ├── controllers/      # HTTP handlers
+│       ├── services/         # business logic
+│       ├── repositories/     # data access (PG + Redis cache-aside)
+│       ├── routes/           # API + redirect routes
+│       ├── middleware/       # security, rate-limit, errors, requestId
+│       ├── workers/          # async analytics queue
+│       ├── scripts/          # migrate.ts, benchmark-full.ts, benchmark-redis.ts
+│       └── utils/            # base62, validators
+│
+├── benchmark/                # k6 load tests
+│   ├── k6-stress.js          # 1000+ VU ramp stress (max RPS)
+│   ├── k6-redirect.js        # Read-heavy redirect load
+│   ├── k6-nginx.js           # Nginx LB distribution test
+│   ├── k6-mixed.js           # Mixed shorten + redirect
+│   └── results/              # k6 JSON summaries (*.json)
+│
+├── nginx/
+│   └── nginx.conf            # least_conn LB, rate limits, security headers
+├── redis/
+│   └── redis.conf            # allkeys-lru, 256MB, RDB snapshots
+│
+├── src/                      # React frontend (Vite)
+│   ├── pages/                # Shorten, My Links, Analytics
+│   └── lib/                  # API client, link history
+│
+├── postman/
+│   └── TinyURL-Shortener.postman_collection.json
+│
+└── .env                      # Local secrets (gitignored)
 ```
+
+
 
 ---
 
-## References
+## Documentation
 
-- [GeeksforGeeks — URL Shortener System Design](https://www.geeksforgeeks.org/system-design-url-shortening-service/)
-- [InterviewLoop — Design a URL Shortener](https://interviewloop.app/learn/system-design/1-design-a-url-shortener-tinyurl)
-- [Hello Interview — Design Bitly](https://www.hellointerview.com/learn/system-design/problem-breakdowns/bitly)
+| Doc | Purpose |
+|-----|---------|
+| [RUNBOOK.md](RUNBOOK.md) | Complete tutorial — Redis, Nginx, Postgres, all run modes |
+| [BENCHMARKS.md](BENCHMARKS.md) | Load test results, k6 VUs, latency, LB distribution |
+
 
 ---
 

@@ -10,6 +10,7 @@ import v1Routes from './routes/v1Routes.js';
 import { healthController } from './controllers/healthController.js';
 import { redirectHandler } from './controllers/redirectController.js';
 import { requestIdMiddleware } from './middleware/requestId.js';
+import { serverIdMiddleware } from './middleware/serverId.js';
 import { securityMiddleware } from './middleware/security.js';
 import { apiRateLimiter, redirectRateLimiter } from './middleware/rateLimiter.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
@@ -21,6 +22,7 @@ app.set('trust proxy', true);
 app.disable('x-powered-by');
 
 app.use(requestIdMiddleware);
+app.use(serverIdMiddleware);
 app.use(securityMiddleware);
 app.use(helmet({
   contentSecurityPolicy: false,

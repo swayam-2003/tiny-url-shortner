@@ -1,0 +1,19 @@
+{
+  "test": "stress_ramp",
+  "base_url": "http://host.docker.internal",
+  "target_vus": 1000,
+  "ramp_up": "30s",
+  "hold_duration": "60s",
+  "total_requests": 315020,
+  "requests_per_second": 5232.199824148309,
+  "successful_301": 405,
+  "rate_limited_429": 314080,
+  "other_errors": 533,
+  "success_rate_pct": 0.1285632658243921,
+  "rate_limit_pct": 99.7016062472224,
+  "latency_avg_ms": 155.16449782787242,
+  "latency_p50_ms": 140.1451865,
+  "latency_p95_ms": 310.8134578999999,
+  "latency_p99_ms": 0,
+  "latency_max_ms": 1229.963787
+}

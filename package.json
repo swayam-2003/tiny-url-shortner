@@ -12,7 +12,12 @@
     "build:backend": "npm run build --prefix backend",
     "migrate": "npm run migrate --prefix backend",
     "benchmark": "npm run benchmark --prefix backend",
+    "benchmark:full": "npm run benchmark:full --prefix backend",
     "benchmark:redis-down": "npm run benchmark --prefix backend -- --redis-down",
+    "benchmark:k6": "docker run --rm -v \"%cd%/benchmark:/scripts\" -e K6_BASE_URL=http://host.docker.internal:3001 grafana/k6 run /scripts/k6-redirect.js",
+    "benchmark:k6:mixed": "docker run --rm -v \"%cd%/benchmark:/scripts\" -e K6_BASE_URL=http://host.docker.internal:3001 -e K6_VUS=100 grafana/k6 run /scripts/k6-mixed.js",
+    "benchmark:k6:nginx": "docker run --rm -v \"%cd%/benchmark:/scripts\" -e K6_BASE_URL=http://host.docker.internal grafana/k6 run /scripts/k6-nginx.js",
+    "benchmark:k6:stress": "docker run --rm -v \"%cd%/benchmark:/scripts\" -e K6_BASE_URL=http://host.docker.internal -e K6_VUS=1000 -e K6_DURATION=60s grafana/k6 run /scripts/k6-stress.js",
     "lint": "eslint .",
     "preview": "vite preview"
   },
