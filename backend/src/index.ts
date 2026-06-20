@@ -14,6 +14,8 @@ import { serverIdMiddleware } from './middleware/serverId.js';
 import { securityMiddleware } from './middleware/security.js';
 import { apiRateLimiter, redirectRateLimiter } from './middleware/rateLimiter.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
+import { corsOptions } from './config/cors.js';
+import { registerStaticAssets } from './config/staticAssets.js';
 
 const app = express();
 const port = Number(process.env.PORT ?? 3001);
@@ -28,17 +30,14 @@ app.use(helmet({
   contentSecurityPolicy: false,
   hsts: process.env.NODE_ENV === 'production',
 }));
-app.use(cors({
-  origin: process.env.NODE_ENV === 'production' ? process.env.BASE_URL : true,
-  methods: ['GET', 'POST', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'X-Request-Id'],
-}));
+app.use(cors(corsOptions));
 app.use(express.json({ limit: '16kb' }));
 app.use(pinoHttp({ logger, customProps: (req) => ({ requestId: req.requestId }) }));
 
 app.get('/health', healthController);
 app.use('/api/v1', apiRateLimiter, v1Routes);
-app.get('/:shortCode', redirectRateLimiter, redirectHandler);
+registerStaticAssets(app);
+app.get('/:shortCode([a-zA-Z0-9_-]{3,12})', redirectRateLimiter, redirectHandler);
 app.use(notFoundHandler);
 app.use(errorHandler);
 

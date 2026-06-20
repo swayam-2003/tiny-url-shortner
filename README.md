@@ -54,11 +54,12 @@ flowchart TB
 
 ### Deployment Topology
 
-| Mode | Command | Access |
-|------|---------|--------|
+| Mode | Command / Doc | Access |
+|------|----------------|--------|
 | **Local dev** | `npm run dev:all` | API `:3001`, UI `:5173` |
 | **Docker infra** | `docker compose up -d` | Redis `:6379`, PG `:5433` |
 | **Full stack + Nginx** | `docker compose --profile full up -d` | Everything via `:80` |
+| **Production (free, no Fly card)** | See **[DEPLOY.md](DEPLOY.md)** — `prod` branch → Render/Koyeb + Neon + Upstash |
 
 ---
 
@@ -440,9 +441,17 @@ Access via `http://localhost` — Nginx routes to 2 API replicas + React fronten
 ```
 tiny-url-shortner/
 ├── README.md                 # Main docs — architecture, API, setup
+├── DEPLOY.md                 # Production hosting (Render/Koyeb + Neon + Upstash)
+├── NEON_SETUP.md             # Neon Postgres setup (completed)
+├── render.yaml               # Render Blueprint (prod branch)
+├── koyeb.yaml                # Koyeb config (alternative)
 ├── RUNBOOK.md                # Step-by-step run tutorial (all modes)
-├── BENCHMARKS.md               # Load test results (k6 1000 VUs, latency, LB)
+├── BENCHMARKS.md             # Load test results (k6 1000 VUs, latency, LB)
 ├── EXPLAINATION.md           # System design + interview Q&A
+├── Dockerfile.production     # Fly.io unified build (UI + API)
+├── fly.toml                  # Fly.io config (health checks, HTTPS)
+├── vercel.json               # Vercel SPA config (split-domain UI)
+├── .env.production.example   # Production env template
 ├── docker-compose.yml        # Redis, Postgres, API×2, Nginx, frontend (profiles)
 ├── package.json              # Root scripts (dev:all, benchmark:*)
 │
@@ -489,8 +498,13 @@ tiny-url-shortner/
 
 | Doc | Purpose |
 |-----|---------|
+| **[DEPLOY.md](DEPLOY.md)** | **Production (Option B)** — Render/Koyeb, `prod` branch, Neon + Upstash |
+| [NEON_SETUP.md](NEON_SETUP.md) | Neon Postgres — your `tiny-url` project setup |
 | [RUNBOOK.md](RUNBOOK.md) | Complete tutorial — Redis, Nginx, Postgres, all run modes |
 | [BENCHMARKS.md](BENCHMARKS.md) | Load test results, k6 VUs, latency, LB distribution |
+| [EXPLAINATION.md](EXPLAINATION.md) | System design concepts and interview Q&A |
+| [EXPLAINATION-2.md](EXPLAINATION-2.md) | Complete walkthrough — every file, every flow |
+| [EXPLAINATION-3.md](EXPLAINATION-3.md) | HLD, LLD, database design, Base62 — interview narrative |
 
 
 ---

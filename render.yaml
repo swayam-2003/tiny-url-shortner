@@ -1,0 +1,26 @@
+# Render Blueprint — Option B (no credit card on Fly)
+# Connect: https://dashboard.render.com → New → Blueprint → link GitHub repo → branch: prod
+# Set secret env vars in Render dashboard after first deploy.
+
+services:
+  - type: web
+    name: tiny-url-shortner
+    runtime: docker
+    dockerfilePath: ./Dockerfile.production
+    plan: free
+    region: ohio
+    branch: prod
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SERVE_STATIC
+        value: "true"
+      - key: SERVER_ID
+        value: render-prod-1
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: BASE_URL
+        sync: false

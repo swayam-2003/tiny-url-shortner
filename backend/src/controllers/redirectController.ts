@@ -2,7 +2,7 @@ import type { Request, Response, NextFunction } from 'express';
 import { redirectService } from '../services/redirectService.js';
 import { asyncHandler } from '../middleware/asyncHandler.js';
 
-const RESERVED_PATHS = new Set(['api', 'health', 'favicon.ico', 'robots.txt']);
+const RESERVED_PATHS = new Set(['api', 'health', 'favicon.ico', 'robots.txt', 'links', 'analytics', 'assets']);
 
 export const redirectHandler = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
   const code = req.params.shortCode;

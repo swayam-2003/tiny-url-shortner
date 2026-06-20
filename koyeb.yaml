@@ -1,0 +1,30 @@
+# Koyeb — Option B alternative (no Fly credit card)
+# Deploy: https://app.koyeb.com → Create App → GitHub → branch prod → Dockerfile.production
+# Set env vars in Koyeb dashboard.
+
+name: tiny-url-shortner
+
+services:
+  - name: web
+    type: web
+    ports:
+      - port: 3001
+        protocol: http
+    routes:
+      - path: /
+        port: 3001
+    docker:
+      dockerfile: Dockerfile.production
+    env:
+      - name: NODE_ENV
+        value: production
+      - name: SERVE_STATIC
+        value: "true"
+      - name: PORT
+        value: "3001"
+      - name: SERVER_ID
+        value: koyeb-prod-1
+    regions:
+      - was
+    instance:
+      type: free

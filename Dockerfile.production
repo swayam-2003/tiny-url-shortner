@@ -1,0 +1,40 @@
+# Production image: React UI + Express API on one origin.
+# Used by Render, Koyeb, or local: docker build -f Dockerfile.production -t tiny-url .
+
+# --- Frontend (Vite) ---
+FROM node:20-alpine AS frontend-builder
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY index.html vite.config.js ./
+COPY public ./public
+COPY src ./src
+# Empty = same-origin API calls (relative /api/v1/...)
+ARG VITE_API_URL=
+ENV VITE_API_URL=$VITE_API_URL
+RUN npm run build
+
+# --- Backend (TypeScript) ---
+FROM node:20-alpine AS backend-builder
+WORKDIR /app
+COPY backend/package.json backend/package-lock.json ./
+RUN npm ci
+COPY backend/tsconfig.json ./
+COPY backend/src ./src
+COPY backend/migrations ./migrations
+RUN npm run build
+
+# --- Runtime ---
+FROM node:20-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+ENV SERVE_STATIC=true
+COPY backend/package.json backend/package-lock.json ./
+RUN npm ci --omit=dev
+COPY --from=backend-builder /app/dist ./dist
+COPY backend/migrations ./migrations
+COPY --from=frontend-builder /app/dist ./public
+EXPOSE 3001
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+  CMD wget -qO- http://127.0.0.1:3001/health || exit 1
+CMD ["node", "dist/index.js"]
