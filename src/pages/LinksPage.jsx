@@ -1,16 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Copy, Check, Trash2, BarChart3, ExternalLink } from 'lucide-react';
 import { getLinks, removeLink } from '../hooks/useLinks.js';
 import { api } from '../services/api.js';
 
 export default function LinksPage() {
-  const [links, setLinks] = useState([]);
+  const [links, setLinks] = useState(() => getLinks());
   const [copied, setCopied] = useState('');
-
-  useEffect(() => {
-    setLinks(getLinks());
-  }, []);
 
   async function handleCopy(shortUrl, shortCode) {
     await navigator.clipboard.writeText(shortUrl);
