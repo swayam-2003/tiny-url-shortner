@@ -1,7 +1,3 @@
-# Production CI — runs on every push to `prod`
-# Render/Koyeb auto-deploy when connected to the prod branch in their dashboard.
-# Optional: add RENDER_DEPLOY_HOOK GitHub secret to trigger Render redeploy from CI.
-
 name: Production
 
 on:
@@ -21,13 +17,13 @@ jobs:
           node-version: "20"
           cache: npm
 
-      - name: Install frontend deps
+      - name: Install frontend dependencies
         run: npm ci
 
       - name: Build frontend
         run: npm run build
 
-      - name: Install backend deps
+      - name: Install backend dependencies
         run: npm ci --prefix backend
 
       - name: Build backend
@@ -49,5 +45,5 @@ jobs:
             curl -fsS -X POST "$RENDER_DEPLOY_HOOK"
             echo "Render deploy triggered"
           else
-            echo "RENDER_DEPLOY_HOOK not set — Render will deploy via GitHub integration"
+            echo "RENDER_DEPLOY_HOOK not set — Render deploys via GitHub Blueprint sync"
           fi

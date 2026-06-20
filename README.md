@@ -1,6 +1,13 @@
 # TinyURL — Enterprise URL Shortener
 
+[![CI](https://github.com/swayam-2003/tiny-url-shortner/actions/workflows/ci.yml/badge.svg)](https://github.com/swayam-2003/tiny-url-shortner/actions/workflows/ci.yml)
+[![Production](https://github.com/swayam-2003/tiny-url-shortner/actions/workflows/deploy-prod.yml/badge.svg)](https://github.com/swayam-2003/tiny-url-shortner/actions/workflows/deploy-prod.yml)
+
+**Live demo:** [https://tiny-url-shortner.onrender.com](https://tiny-url-shortner.onrender.com)
+
 A production-grade distributed URL shortening platform built with **React**, **Node.js (TypeScript)**, **PostgreSQL**, **Redis**, **Nginx**, and **Docker**. Supports high-throughput URL creation, **301 permanent redirects**, cache-aside caching, Base62 encoding with random security suffix, dual-layer rate limiting, and asynchronous click analytics.
+
+**Production stack:** Render + Neon + Upstash (free tier) — deploy from the **`prod`** branch. See [docs/deployment/DEPLOY.md](docs/deployment/DEPLOY.md).
 
 ---
 
@@ -59,7 +66,7 @@ flowchart TB
 | **Local dev** | `npm run dev:all` | API `:3001`, UI `:5173` |
 | **Docker infra** | `docker compose up -d` | Redis `:6379`, PG `:5433` |
 | **Full stack + Nginx** | `docker compose --profile full up -d` | Everything via `:80` |
-| **Production (free, no Fly card)** | See **[DEPLOY.md](DEPLOY.md)** — `prod` branch → Render/Koyeb + Neon + Upstash |
+| **Production (Render)** | Push to **`prod`** branch | [Live demo](https://tiny-url-shortner.onrender.com) — see [DEPLOY.md](docs/deployment/DEPLOY.md) |
 
 ---
 
@@ -440,71 +447,87 @@ Access via `http://localhost` — Nginx routes to 2 API replicas + React fronten
 
 ```
 tiny-url-shortner/
-├── README.md                 # Main docs — architecture, API, setup
-├── DEPLOY.md                 # Production hosting (Render/Koyeb + Neon + Upstash)
-├── NEON_SETUP.md             # Neon Postgres setup (completed)
-├── render.yaml               # Render Blueprint (prod branch)
-├── koyeb.yaml                # Koyeb config (alternative)
-├── RUNBOOK.md                # Step-by-step run tutorial (all modes)
-├── BENCHMARKS.md             # Load test results (k6 1000 VUs, latency, LB)
-├── EXPLAINATION.md           # System design + interview Q&A
-├── Dockerfile.production     # Fly.io unified build (UI + API)
-├── fly.toml                  # Fly.io config (health checks, HTTPS)
-├── vercel.json               # Vercel SPA config (split-domain UI)
-├── .env.production.example   # Production env template
-├── docker-compose.yml        # Redis, Postgres, API×2, Nginx, frontend (profiles)
-├── package.json              # Root scripts (dev:all, benchmark:*)
+├── README.md
+├── render.yaml                 # Render Blueprint (repo root — required)
+├── Dockerfile.production       # Production Docker image (UI + API)
+├── docker-compose.yml          # Local Redis, Postgres, Nginx stack
+├── package.json                # Frontend scripts (dev, build, benchmark)
 │
-├── backend/
-│   ├── package.json
+├── docs/                       # All documentation
+│   ├── README.md               # Doc index
+│   ├── deployment/
+│   │   ├── DEPLOY.md           # Production hosting guide
+│   │   └── NEON_SETUP.md       # Neon Postgres setup
+│   ├── RUNBOOK.md              # Local dev tutorial
+│   ├── BENCHMARKS.md           # k6 load test results
+│   └── design/
+│       ├── EXPLAINATION.md     # System design + interview Q&A
+│       ├── EXPLAINATION-2.md   # Full walkthrough
+│       └── EXPLAINATION-3.md   # HLD, LLD, database design
+│
+├── deploy/                     # Optional deploy configs
+│   ├── koyeb.yaml
+│   └── vercel.json
+│
+├── .github/workflows/
+│   ├── ci.yml                  # Build + lint on main, prod, features
+│   ├── deploy-prod.yml         # Docker build + Render hook on prod
+│   └── README.md               # CI/CD guide
+│
+├── backend/                    # Express API (TypeScript)
+│   ├── Dockerfile              # Local / single API container
+│   ├── migrations/
 │   └── src/
-│       ├── config/           # env, db, redis, logger
-│       ├── controllers/      # HTTP handlers
-│       ├── services/         # business logic
-│       ├── repositories/     # data access (PG + Redis cache-aside)
-│       ├── routes/           # API + redirect routes
-│       ├── middleware/       # security, rate-limit, errors, requestId
-│       ├── workers/          # async analytics queue
-│       ├── scripts/          # migrate.ts, benchmark-full.ts, benchmark-redis.ts
-│       └── utils/            # base62, validators
+│       ├── config/             # env, db, redis, cors, static assets
+│       ├── controllers/
+│       ├── services/
+│       ├── repositories/
+│       ├── routes/
+│       ├── middleware/
+│       ├── workers/
+│       ├── scripts/
+│       └── utils/
 │
-├── benchmark/                # k6 load tests
-│   ├── k6-stress.js          # 1000+ VU ramp stress (max RPS)
-│   ├── k6-redirect.js        # Read-heavy redirect load
-│   ├── k6-nginx.js           # Nginx LB distribution test
-│   ├── k6-mixed.js           # Mixed shorten + redirect
-│   └── results/              # k6 JSON summaries (*.json)
+├── src/                        # React frontend (Vite)
+│   ├── pages/
+│   ├── components/
+│   ├── hooks/
+│   └── services/
 │
-├── nginx/
-│   └── nginx.conf            # least_conn LB, rate limits, security headers
-├── redis/
-│   └── redis.conf            # allkeys-lru, 256MB, RDB snapshots
-│
-├── src/                      # React frontend (Vite)
-│   ├── pages/                # Shorten, My Links, Analytics
-│   └── lib/                  # API client, link history
-│
-├── postman/
-│   └── TinyURL-Shortener.postman_collection.json
-│
-└── .env                      # Local secrets (gitignored)
+├── benchmark/                  # k6 load tests
+├── nginx/                      # Local Nginx LB config
+├── redis/                      # Local Redis config
+└── postman/                    # API collection
 ```
 
+---
 
+## Branches & CI/CD
+
+| Branch | Purpose | CI |
+|--------|---------|-----|
+| `main` | Stable default | [`ci.yml`](.github/workflows/ci.yml) |
+| `prod` | **Production deploys** (Render watches this) | [`ci.yml`](.github/workflows/ci.yml) + [`deploy-prod.yml`](.github/workflows/deploy-prod.yml) |
+| `feature/*` | Development | [`ci.yml`](.github/workflows/ci.yml) |
+
+**Flow:** develop on `feature/*` → merge to `main` → merge to `prod` → Render auto-deploys + GitHub Actions runs.
+
+Optional: add `RENDER_DEPLOY_HOOK` secret — see [`.github/workflows/README.md`](.github/workflows/README.md).
 
 ---
 
 ## Documentation
 
+Full index: [docs/README.md](docs/README.md)
+
 | Doc | Purpose |
 |-----|---------|
-| **[DEPLOY.md](DEPLOY.md)** | **Production (Option B)** — Render/Koyeb, `prod` branch, Neon + Upstash |
-| [NEON_SETUP.md](NEON_SETUP.md) | Neon Postgres — your `tiny-url` project setup |
-| [RUNBOOK.md](RUNBOOK.md) | Complete tutorial — Redis, Nginx, Postgres, all run modes |
-| [BENCHMARKS.md](BENCHMARKS.md) | Load test results, k6 VUs, latency, LB distribution |
-| [EXPLAINATION.md](EXPLAINATION.md) | System design concepts and interview Q&A |
-| [EXPLAINATION-2.md](EXPLAINATION-2.md) | Complete walkthrough — every file, every flow |
-| [EXPLAINATION-3.md](EXPLAINATION-3.md) | HLD, LLD, database design, Base62 — interview narrative |
+| **[docs/deployment/DEPLOY.md](docs/deployment/DEPLOY.md)** | Production hosting — Render, Neon, Upstash |
+| [docs/deployment/NEON_SETUP.md](docs/deployment/NEON_SETUP.md) | Neon Postgres setup |
+| [docs/RUNBOOK.md](docs/RUNBOOK.md) | Local dev — Docker, Nginx, all modes |
+| [docs/BENCHMARKS.md](docs/BENCHMARKS.md) | k6 load test results |
+| [docs/design/EXPLAINATION-3.md](docs/design/EXPLAINATION-3.md) | HLD, LLD, database design |
+| [.github/workflows/README.md](.github/workflows/README.md) | GitHub Actions & branch strategy |
 
 
 ---
